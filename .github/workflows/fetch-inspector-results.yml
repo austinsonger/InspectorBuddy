@@ -6,7 +6,7 @@ jobs:
 
    # change this to match your GitHub Secrets environment
    environment:
-     name: your_github_secrets_environment
+     name: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
 
    steps:
      - name: Configure AWS credentials
@@ -20,7 +20,7 @@ jobs:
 
      - name: Inspector Scan
        id: inspector
-       uses: action.yml@v1.0.0
+       uses: austinsonger/EC2-Vulnerability-Scan-GitHub-Action-for-Amazon-Inspector@v0.0.1
        with:
          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
