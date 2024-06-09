@@ -1,0 +1,17 @@
+name: 'Fetch Inspector Scan Results'
+on: [push]
+
+jobs:
+  fetch-scan-results:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get Amazon Inspector Scan Results
+        uses: ./path/to/your/action
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'us-west-2'
+          inspector-assessment-run-arn: 'arn:aws:inspector:us-west-2:123456789012:assessment-run/assessment-run-id'
