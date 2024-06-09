@@ -53,7 +53,7 @@ jobs:
      # modify this block to scan your intended EC2 instances
      - name: Inspector Scan
        id: inspector
-       uses: ./path/to/your/action
+       uses: austinsonger/EC2-Vulnerability-Scan-GitHub-Action-for-Amazon-Inspector@v0.0.1
        with:
          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -130,7 +130,7 @@ The below example shows how to enable action outputs in various locations and fo
 ```yaml
 - name: Scan EC2 instances
   id: inspector
-  uses: ./path/to/your/action
+  uses: austinsonger/EC2-Vulnerability-Scan-GitHub-Action-for-Amazon-Inspector@v0.0.1
   with:
     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -172,7 +172,7 @@ Vulnerability thresholds can be used to support custom logic, such as failing th
 ```yaml
 - name: Invoke Amazon Inspector Scan
   id: inspector
-  uses: ./path/to/your/action
+  uses: austinsonger/EC2-Vulnerability-Scan-GitHub-Action-for-Amazon-Inspector@v0.0.1
   with:
     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
