@@ -1,1 +1,3 @@
-# EC2 Vulnerability Scan Results GitHub Action for Amazon Inspector
+# AWS Inspector Results for EC2 Instances
+
+
