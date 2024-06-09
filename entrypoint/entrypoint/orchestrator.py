@@ -1,7 +1,7 @@
 import logging
 import boto3
 import json
-from entrypoint import pkg_vuln
+from entrypoint import pkg_vuln, executor
 
 def execute(args) -> int:
     logging.info("Starting the Amazon Inspector EC2 scan results fetch process")
@@ -23,3 +23,11 @@ def execute(args) -> int:
     except Exception as e:
         logging.error(f"Failed to fetch findings: {e}")
         return 1
+
+def invoke_aws_command(args) -> int:
+    """
+    Invokes an AWS CLI command using the executor.
+    :param args: The arguments for the AWS CLI command
+    :return: The exit code of the command
+    """
+    return executor.invoke_command('aws', args)
