@@ -1,57 +1,123 @@
 import json
 import logging
+import requests
 from typing import List
 
 class Vulnerability:
+    """
+    Vulnerability is an object for marshalling vulnerability findings
+    from Inspector's JSON into a Python object that can be queried and manipulated.
+    """
     def __init__(self):
-        """
-        Vulnerability is an object for marshalling vulnerability findings
-        from Inspector's JSON into a Python object that can be queried and manipulated.
-        """
         self.vuln_id = "null"
         self.severity = "null"
-        self.cvss_score = "null"
         self.description = "null"
         self.resource_type = "null"
         self.resource_id = "null"
 
-def vulns_to_obj(inspector_findings_json) -> List[Vulnerability]:
-    """
-    Parses JSON from Inspector's API and returns a list of vulnerability objects.
-    """
-    vuln_list = []
+def get_json_value(key: str, inspector_scan_json: dict):
+    value = inspector_scan_json.get(key)
+    return value
 
-    findings = inspector_findings_json.get("findings", [])
-    for finding in findings:
-        vuln_obj = Vulnerability()
-        vuln_obj.vuln_id = finding.get("arn", "null")
-        vuln_obj.severity = finding.get("severity", "null")
-        vuln_obj.cvss_score = finding.get("attributes", {}).get("cvss", "null")
-        vuln_obj.description = finding.get("description", "null")
-        vuln_obj.resource_type = finding.get("resource", {}).get("type", "null")
-        vuln_obj.resource_id = finding.get("resource", {}).get("id", "null")
-        vuln_list.append(vuln_obj)
+def get_json_value_or_throw_fatal_error(key: str, inspector_scan_json: dict):
+    value = get_json_value(key, inspector_scan_json)
+    if not value:
+        logging.fatal(f"expected JSON with key '{key}' but it was not found")
+    return value
 
-    return vuln_list
+def get_inspector_scan_body(inspector_scan_json):
+    scan_json = json.loads(inspector_scan_json)
+    scan_body = get_json_value("findings", scan_json)
+    if not scan_body:
+        logging.fatal("expected JSON with key 'findings' but none was found")
+    return scan_body
 
-def process_findings_to_json(findings) -> str:
-    """
-    Converts findings to a formatted JSON string.
-    """
-    findings_detail = json.dumps(findings, indent=4)
-    return findings_detail
+def parse_vulns(inspector_scan_json: str) -> List[Vulnerability]:
+    scan_body = get_inspector_scan_body(inspector_scan_json)
+    vulnerabilities = []
 
-def set_github_actions_output(name: str, value: str):
-    """
-    Sets the GitHub Actions output.
-    """
-    logging.info(f"Setting GitHub Actions output - {name}: {value}")
-    print(f"::set-output name={name}::{value}")
+    for finding in scan_body:
+        vuln = Vulnerability()
+        vuln.vuln_id = finding.get("arn", "null")
+        vuln.severity = finding.get("severity", "null")
+        vuln.description = finding.get("description", "null")
+        vuln.resource_type = finding.get("resource", {}).get("type", "null")
+        vuln.resource_id = finding.get("resource", {}).get("id", "null")
+        vulnerabilities.append(vuln)
 
-def fatal_assert(expr: bool, msg: str):
+    return vulnerabilities
+
+def generate_csv_report(vulnerabilities: List[Vulnerability]) -> str:
+    csv_output = "ID,SEVERITY,DESCRIPTION,RESOURCE_TYPE,RESOURCE_ID\n"
+
+    for vuln in vulnerabilities:
+        clean_description = vuln.description.replace(',', '')
+        csv_row = f"{vuln.vuln_id},{vuln.severity},{clean_description},{vuln.resource_type},{vuln.resource_id}\n"
+        csv_output += csv_row
+
+    return csv_output
+
+def write_csv_report(inspector_scan_path: str, dst_file: str) -> bool:
+    with open(inspector_scan_path, 'r') as file:
+        inspector_scan_json = file.read()
+
+    vulnerabilities = parse_vulns(inspector_scan_json)
+    if not vulnerabilities:
+        logging.info("No vulnerabilities found, skipping CSV report")
+        return False
+
+    csv_output = generate_csv_report(vulnerabilities)
+    logging.info(f"Writing vulnerability CSV report to: {dst_file}")
+    with open(dst_file, "w") as file:
+        file.write(csv_output)
+
+    return True
+
+def create_jira_ticket(jira_url, jira_username, jira_api_token, jira_project_key, vulnerability):
     """
-    Asserts a condition and logs an error message if the condition is not met.
+    Creates a Jira ticket for a given vulnerability.
+    :param jira_url: Jira URL
+    :param jira_username: Jira Username
+    :param jira_api_token: Jira API Token
+    :param jira_project_key: Jira Project Key
+    :param vulnerability: Vulnerability object
+    :return: Response from Jira API
     """
-    if not expr:
-        logging.error(msg)
-        exit(1)
+    url = f"{jira_url}/rest/api/2/issue"
+    headers = {
+        "Content-Type": "application/json"
+    }
+    auth = (jira_username, jira_api_token)
+    payload = {
+        "fields": {
+            "project": {
+                "key": jira_project_key
+            },
+            "summary": f"Vulnerability: {vulnerability.vuln_id} - {vulnerability.severity}",
+            "description": f"{vulnerability.description}\n\nResource Type: {vulnerability.resource_type}\nResource ID: {vulnerability.resource_id}",
+            "issuetype": {
+                "name": "Bug"
+            }
+        }
+    }
+
+    response = requests.post(url, headers=headers, auth=auth, json=payload)
+
+    if response.status_code == 201:
+        logging.info(f"Successfully created Jira ticket for vulnerability {vulnerability.vuln_id}")
+    else:
+        logging.error(f"Failed to create Jira ticket for vulnerability {vulnerability.vuln_id}: {response.text}")
+
+    return response
+
+def create_jira_tickets(jira_url, jira_username, jira_api_token, jira_project_key, vulnerabilities: List[Vulnerability]):
+    """
+    Creates Jira tickets for a list of vulnerabilities.
+    :param jira_url: Jira URL
+    :param jira_username: Jira Username
+    :param jira_api_token: Jira API Token
+    :param jira_project_key: Jira Project Key
+    :param vulnerabilities: List of Vulnerability objects
+    """
+    for vulnerability in vulnerabilities:
+        create_jira_ticket(jira_url, jira_username, jira_api_token, jira_project_key, vulnerability)
