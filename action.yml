@@ -1,0 +1,26 @@
+name: 'Amazon Inspector Scan Results'
+description: 'Get Inspector scan results for EC2 findings'
+inputs:
+  aws-access-key-id:
+    description: 'AWS Access Key ID'
+    required: true
+  aws-secret-access-key:
+    description: 'AWS Secret Access Key'
+    required: true
+  aws-region:
+    description: 'AWS Region'
+    required: true
+  inspector-assessment-run-arn:
+    description: 'Amazon Inspector Assessment Run ARN'
+    required: true
+outputs:
+  findings:
+    description: 'Inspector scan findings'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.aws-access-key-id }}
+    - ${{ inputs.aws-secret-access-key }}
+    - ${{ inputs.aws-region }}
+    - ${{ inputs.inspector-assessment-run-arn }}
