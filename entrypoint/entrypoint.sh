@@ -13,4 +13,4 @@ aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
 aws configure set region "$AWS_REGION"
 
 # Run the main Python script
-python3 /path/to/your/main_script.py --aws-access-key-id "$AWS_ACCESS_KEY_ID" --aws-secret-access-key "$AWS_SECRET_ACCESS_KEY" --aws-region "$AWS_REGION" --assessment-run-arn "$ASSESSMENT_RUN_ARN"
+python3 main.py --aws-access-key-id "$AWS_ACCESS_KEY_ID" --aws-secret-access-key "$AWS_SECRET_ACCESS_KEY" --aws-region "$AWS_REGION" --assessment-run-arn "$ASSESSMENT_RUN_ARN"
