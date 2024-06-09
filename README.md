@@ -205,12 +205,17 @@ Vulnerability thresholds can be used to support custom logic, such as failing th
 
 ### Input Options
 
-| **Name**                       | **Description**                                              | **Required** | **Default** |
+| Name**                         | **Description**                                              | **Required** | **Default** |
 | ------------------------------ | ------------------------------------------------------------ | ------------ | ----------- |
 | aws-access-key-id              | AWS Access Key ID for accessing Amazon Inspector             | True         | -           |
 | aws-secret-access-key          | AWS Secret Access Key for accessing Amazon Inspector         | True         | -           |
 | aws-region                     | AWS Region where your EC2 instances are located              | True         | -           |
 | assessment-run-arn             | Amazon Inspector Assessment Run ARN                          | True         | -           |
+| agentless                      | Specifies if the scan should be agentless (true/false)       | False        | false       |
+| jira-url                       | Jira URL for creating tickets (optional)                     | False        | -           |
+| jira-username                  | Jira Username for creating tickets (optional)                | False        | -           |
+| jira-api-token                 | Jira API Token for creating tickets (optional)               | False        | -           |
+| jira-project-key               | Jira Project Key for creating tickets (optional)             | False        | -           |
 | display_vulnerability_findings | If set to "enabled", the action will display detailed vulnerability findings in the action summary page | True         | disabled    |
 | critical_threshold             | Specifies the number of critical vulnerabilities needed to set the 'vulnerability_threshold_exceeded' flag | False        | 0           |
 | high_threshold                 | Specifies the number of high vulnerabilities needed to set the 'vulnerability_threshold_exceeded' flag | False        | 0           |
