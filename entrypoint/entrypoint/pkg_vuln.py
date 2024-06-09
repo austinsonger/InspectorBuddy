@@ -3,11 +3,11 @@ import logging
 from typing import List
 
 class Vulnerability:
-    """
-    Vulnerability is an object for marshalling vulnerability findings
-    from Inspector's JSON into a Python object that can be queried and manipulated.
-    """
     def __init__(self):
+        """
+        Vulnerability is an object for marshalling vulnerability findings
+        from Inspector's JSON into a Python object that can be queried and manipulated.
+        """
         self.vuln_id = "null"
         self.severity = "null"
         self.cvss_score = "null"
