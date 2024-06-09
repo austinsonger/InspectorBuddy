@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 
 import sys
-
-from entrypoint import cli
-from entrypoint import log_conf
-from entrypoint import orchestrator
+import boto3
 
 def main():
-    # initialize the CLI arguments
-    args = cli.init(sys.argv[1:])
+    # Example: Fetch findings from Amazon Inspector
+    aws_access_key_id = sys.argv[1]
+    aws_secret_access_key = sys.argv[2]
+    aws_region = sys.argv[3]
+    assessment_run_arn = sys.argv[4]
 
-    # initialize logger
-    if args.verbose:
-        log_conf.init(enable_verbose=True)
-    else:
-        log_conf.init(enable_verbose=False)
+    client = boto3.client(
+        'inspector',
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        region_name=aws_region
+    )
 
-    # entrypoint to business logic
-    ret = orchestrator.execute(args)
-    sys.exit(ret)
+    findings = client.list_findings(assessmentRunArns=[assessment_run_arn])
+    print(f"Findings: {findings}")
 
 if __name__ == '__main__':
     main()
