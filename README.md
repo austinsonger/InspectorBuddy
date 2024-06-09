@@ -1,4 +1,4 @@
-# Vulnerability Scan GitHub Action for Amazon Inspector
+# EC2 Vulnerability Scan GitHub Action for Amazon Inspector
 
 Amazon Inspector is a vulnerability management service that scans AWS workloads for known software vulnerabilities.
 
