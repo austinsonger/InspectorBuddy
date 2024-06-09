@@ -22,7 +22,7 @@ This action works by utilizing Amazon Inspector to scan specified EC2 instances 
 
 Perform the following steps to quickly add this action to your GitHub Actions pipeline:
 
-```
+```yaml
 name: Scan EC2 Instances with Amazon Inspector
 on: [push]
 jobs:
@@ -117,7 +117,7 @@ By default, this action only displays the number of vulnerabilities detected in 
 
 The below example shows how to enable action outputs in various locations and formats.
 
-```
+```yaml
 - name: Scan EC2 instances
   id: inspector
   uses: aws/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
@@ -158,7 +158,7 @@ This action allows the user to set vulnerability thresholds.
 
 Vulnerability thresholds can be used to support custom logic, such as failing the workflow if any vulnerabilities are found.
 
-```
+```yaml
 - name: Invoke Amazon Inspector Scan
   id: inspector
   uses: aws/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
