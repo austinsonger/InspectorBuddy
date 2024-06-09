@@ -1,10 +1,9 @@
-# EC2 Vulnerability Scan GitHub Action for Amazon Inspector
+# EC2 Vulnerability Scanfor Amazon Inspector (Plus Jira Intergration)
 
 Amazon Inspector is a vulnerability management service that scans AWS workloads for known software vulnerabilities.
 
-This GitHub Action allows you to scan EC2 instances for software vulnerabilities using Amazon Inspector from your GitHub Actions workflows.
+This GitHub Action allows you to scan EC2 instances for software vulnerabilities using Amazon Inspector from your GitHub Actions workflows. Both agent-based and agentless scans are supported. Additionally, this action can create Jira tickets for each new individual vulnerability detected.
 
-An active AWS account is required to use this action.
 
 ## Overview
 This action works by utilizing Amazon Inspector to scan specified EC2 instances for known vulnerabilities.
@@ -14,7 +13,8 @@ This action works by utilizing Amazon Inspector to scan specified EC2 instances 
 - Required: You must have an active AWS account to use this action. 
 - Required: You must have read access to the InspectorScan API. 
 - Required: You must configure AWS authentication for use in GitHub action workflows.
-- Required: Create a GitHub Actions workflow if you do not already have one. 
+- Required: Create a GitHub Actions workflow if you do not already have one.
+- Optional: Configure Jira authentication if you want to create Jira tickets for each new vulnerability. You need the Jira URL, Jira username, and Jira API token.
 
 ## Usage
 
@@ -51,12 +51,19 @@ jobs:
      # modify this block to scan your intended EC2 instances
      - name: Inspector Scan
        id: inspector
-       uses: action.yml
+       uses: ./path/to/your/action
        with:
          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
          aws-region: ${{ secrets.AWS_REGION }}
          assessment-run-arn: 'arn:aws:inspector:us-west-2:123456789012:assessment-run/assessment-run-id'
+         agentless: true # Set to true to use agentless scans
+
+         # Jira integration parameters (optional)
+         jira-url: ${{ secrets.JIRA_URL }}
+         jira-username: ${{ secrets.JIRA_USERNAME }}
+         jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
+         jira-project-key: ${{ secrets.JIRA_PROJECT_KEY }}
 
          # If enabled, this setting will display Inspector's vulnerability scan findings
          # as a GitHub actions step summary. See here for an example step summary:
@@ -107,6 +114,7 @@ jobs:
        # Replace 'echo' with 'exit' if you want to fail the job.
      - name: On vulnerability threshold exceeded
        run: echo ${{ steps.inspector.outputs.vulnerability_threshold_exceeded }}
+
 ```
 
 
@@ -120,12 +128,13 @@ The below example shows how to enable action outputs in various locations and fo
 ```yaml
 - name: Scan EC2 instances
   id: inspector
-  uses: action.yml
+  uses: ./path/to/your/action
   with:
     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     aws-region: ${{ secrets.AWS_REGION }}
     assessment-run-arn: 'arn:aws:inspector:us-west-2:123456789012:assessment-run/assessment-run-id'
+    agentless: true
     display_vulnerability_findings: "enabled"
 
 # Display Inspector results in the GitHub Actions terminal
@@ -161,12 +170,13 @@ Vulnerability thresholds can be used to support custom logic, such as failing th
 ```yaml
 - name: Invoke Amazon Inspector Scan
   id: inspector
-  uses: action.yml
+  uses: ./path/to/your/action
   with:
     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     aws-region: ${{ secrets.AWS_REGION }}
     assessment-run-arn: 'arn:aws:inspector:us-west-2:123456789012:assessment-run/assessment-run-id'
+    agentless: true
     display_vulnerability_findings: "enabled"
 
     # If the number of vulnerabilities equals or exceeds
