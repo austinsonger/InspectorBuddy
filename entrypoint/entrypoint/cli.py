@@ -18,11 +18,12 @@ def init(sys_argv=None) -> argparse.Namespace:
                         help='AWS Region')
     parser.add_argument('--assessment-run-arn', type=str, required=True,
                         help='Amazon Inspector Assessment Run ARN')
+    parser.add_argument('--agentless', action='store_true', help='Use agentless scan')
+    parser.add_argument('--jira-url', type=str, help='Jira URL')
+    parser.add_argument('--jira-username', type=str, help='Jira Username')
+    parser.add_argument('--jira-api-token', type=str, help='Jira API Token')
+    parser.add_argument('--jira-project-key', type=str, help='Jira Project Key')
 
-    args = ""
-    if sys_argv:
-        args = parser.parse_args(sys_argv)
-    else:
-        args = parser.parse_args()
-
+    args = parser.parse_args(sys_argv) if sys_argv else parser.parse_args()
+    
     return args
