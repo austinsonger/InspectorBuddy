@@ -1,6 +1,7 @@
 import logging
 import boto3
 import json
+from entrypoint import pkg_vuln
 
 def execute(args) -> int:
     logging.info("Starting the Amazon Inspector EC2 scan results fetch process")
@@ -15,17 +16,10 @@ def execute(args) -> int:
     try:
         findings = client.list_findings(assessmentRunArns=[args.assessment_run_arn])
         logging.info("Successfully fetched findings")
-        process_findings(findings)
+        findings_detail = pkg_vuln.process_findings_to_json(findings)
+        print(f"Findings: {findings_detail}")
+        pkg_vuln.set_github_actions_output('inspector_scan_results', findings_detail)
         return 0
     except Exception as e:
         logging.error(f"Failed to fetch findings: {e}")
         return 1
-
-def process_findings(findings):
-    logging.info("Processing findings")
-    findings_detail = json.dumps(findings, indent=4)
-    print(f"Findings: {findings_detail}")
-
-def set_github_actions_output(name: str, value: str):
-    logging.info(f"Setting GitHub Actions output - {name}: {value}")
-    print(f"::set-output name={name}::{value}")
