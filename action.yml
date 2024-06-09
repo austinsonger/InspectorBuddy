@@ -1,7 +1,8 @@
 name: 'Amazon Inspector Scan Results'
 description: 'Get Inspector scan results for EC2 findings'
-icon: align-center
-color: blue
+branding:
+  icon: align-center
+  color: blue
 inputs:
   aws-access-key-id:
     description: 'AWS Access Key ID'
