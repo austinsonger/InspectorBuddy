@@ -1,17 +1,64 @@
-name: 'Fetch Inspector Scan Results'
+name: Scan EC2 Instances with Amazon Inspector
 on: [push]
-
 jobs:
-  fetch-scan-results:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+ daily_job:
+   runs-on: ubuntu-latest
 
-      - name: Get Amazon Inspector Scan Results
-        uses: ./path/to/your/action
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: 'us-west-2'
-          inspector-assessment-run-arn: 'arn:aws:inspector:us-west-2:123456789012:assessment-run/assessment-run-id'
+   # change this to match your GitHub Secrets environment
+   environment:
+     name: your_github_secrets_environment
+
+   steps:
+     - name: Configure AWS credentials
+       uses: aws-actions/configure-aws-credentials@v4
+       with:
+         aws-region: "us-east-1"
+         role-to-assume: "arn:aws:iam::<AWS_ACCOUNT_ID>:role/<IAM_ROLE_NAME>"
+
+     - name: Checkout this repository
+       uses: actions/checkout@v4
+
+     - name: Inspector Scan
+       id: inspector
+       uses: action.yml@v1.0.0
+       with:
+         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         aws-region: ${{ secrets.AWS_REGION }}
+         assessment-run-arn: 'arn:aws:inspector:us-west-2:123456789012:assessment-run/assessment-run-id'
+         agentless: true # Set to true to use agentless scans
+
+         # Jira integration parameters (optional)
+         jira-url: ${{ secrets.JIRA_URL }}
+         jira-username: ${{ secrets.JIRA_USERNAME }}
+         jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
+         jira-project-key: ${{ secrets.JIRA_PROJECT_KEY }}
+
+         display_vulnerability_findings: "enabled"
+
+         critical_threshold: 1
+         high_threshold: 1
+         medium_threshold: 1
+         low_threshold: 1
+         other_threshold: 1
+
+     - name: Display Inspector vulnerability scan results (JSON)
+       run: cat ${{ steps.inspector.outputs.inspector_scan_results }}
+
+     - name: Display Inspector vulnerability scan results (CSV)
+       run: cat ${{ steps.inspector.outputs.inspector_scan_results_csv }}
+
+     - name: Display Inspector vulnerability scan results (Markdown)
+       run: cat ${{ steps.inspector.outputs.inspector_scan_results_markdown }}
+
+     - name: Upload Scan Results
+       uses: actions/upload-artifact@v4
+       with:
+         name: Inspector Vulnerability Scan Artifacts
+         path: |
+           ${{ steps.inspector.outputs.inspector_scan_results }}
+           ${{ steps.inspector.outputs.inspector_scan_results_csv }}
+           ${{ steps.inspector.outputs.inspector_scan_results_markdown }}
+
+     - name: On vulnerability threshold exceeded
+       run: echo ${{ steps.inspector.outputs.vulnerability_threshold_exceeded }}
