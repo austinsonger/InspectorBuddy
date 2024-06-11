@@ -1,4 +1,4 @@
-# [NOT PRODUCTION READY] EC2 Vulnerability Scanfor Amazon Inspector (Plus Jira Intergration)
+# [NOT PRODUCTION READY] EC2 Vulnerability Scan for Amazon Inspector (Plus Jira Intergration)
 
 Amazon Inspector is a vulnerability management service that scans AWS workloads for known software vulnerabilities.
 
@@ -29,15 +29,11 @@ jobs:
  daily_job:
    runs-on: ubuntu-latest
 
-   # change this to match your GitHub Secrets environment
    environment:
      name: your_github_secrets_environment
 
    steps:
 
-     # modify this block based on how you authenticate to AWS
-     # make sure you have permission to access the Inspector ScanEC2 API
-     # https://docs.aws.amazon.com/inspector/latest/user/configure-cicd-account.html#cicd-iam-role
      - name: Configure AWS credentials
        uses: aws-actions/configure-aws-credentials@v4
        with:
@@ -65,27 +61,15 @@ jobs:
          jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
          jira-project-key: ${{ secrets.JIRA_PROJECT_KEY }}
 
-         # If enabled, this setting will display Inspector's vulnerability scan findings
-         # as a GitHub actions step summary. See here for an example step summary:
-         # https://github.com/aws-actions/vulnerability-scan-github-action-for-amazon-inspector/actions/runs/8800085041
          display_vulnerability_findings: "enabled"
 
-         # Set vulnerability thresholds; if the number of vulnerabilities is
-         # equal to or greater than any of the specified thresholds, this
-         # action will set the 'vulnerability_threshold_exceeded'
-         # output flag to 1.
          critical_threshold: 1
          high_threshold: 1
          medium_threshold: 1
          low_threshold: 1
          other_threshold: 1
 
-         # Additional input arguments are available to control scan behavior.
-         # See 'action.yml' for additional input/output options.
 
-
-     # The following steps illustrate how to
-     # display scan results in the GitHub Actions job terminal.
      - name: Display Inspector vulnerability scan results (JSON)
        run: cat ${{ steps.inspector.outputs.inspector_scan_results }}
 
@@ -95,9 +79,6 @@ jobs:
      - name: Display Inspector vulnerability scan results (Markdown)
        run: cat ${{ steps.inspector.outputs.inspector_scan_results_markdown }}
 
-
-     # The following steps illustrate how to
-     # upload scan results as a GitHub actions job artifact
      - name: Upload Scan Results
        uses: actions/upload-artifact@v4
        with:
@@ -106,12 +87,6 @@ jobs:
            ${{ steps.inspector.outputs.inspector_scan_results }}
            ${{ steps.inspector.outputs.inspector_scan_results_csv }}
            ${{ steps.inspector.outputs.inspector_scan_results_markdown }}
-
-       # This step illustrates how to add custom logic if
-       # the vulnerability threshold is exceeded. This example
-       # simply prints the 'vulnerability_threshold_exceeded' value
-       # to the GitHub actions job terminal.
-       # Replace 'echo' with 'exit' if you want to fail the job.
      - name: On vulnerability threshold exceeded
        run: echo ${{ steps.inspector.outputs.vulnerability_threshold_exceeded }}
 
