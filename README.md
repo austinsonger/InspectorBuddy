@@ -1,4 +1,6 @@
-# [NOT PRODUCTION READY] EC2 Vulnerability Scan for Amazon Inspector (Plus Jira Intergration)
+> #### [NOT PRODUCTION READY]
+
+# EC2 Vulnerability Scan for Amazon Inspector (Plus Jira Intergration)
 
 Amazon Inspector is a vulnerability management service that scans AWS workloads for known software vulnerabilities.
 
